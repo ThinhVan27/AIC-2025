@@ -30,28 +30,28 @@ Mình sẽ lưu metadata của frame bằng file **JSON** với format như tron
 
 ```json
 {
-        "path": "data\\L15\\V001\\frame_0.jpg",
-        "video_path": "L15\\V001.mp4",
-        "L": 15,
-        "V": 1,
-        "frame_id": 0,
-        "fps": 30,
+        "idx": 0,
+        "path": "keyframes/L21/V001/frame_000026.jpg",
+        "video_url": "https://youtube.com/watch?v=Rzpw5WR7nAY",
+        "L": "21",
+        "V": "001",
+        "frame_id": 26,
+        "fps": 25,
         "frame_stamp": 1,
-        "detected_objects": [],
-        "objects_count": {},
+        "objects": "",
         "detection": "",
         "text": []
 }
 ```
 Ví dụ cho một frame cụ thể, ta có:
+- **idx**: chỉ số tuyệt đối của frame trong toàn bộ dữ liệu.
 - **path**: Đường dẫn tới file ảnh frame, tính từ thư mục gốc dữ liệu.
-- **video_path**: Đường dẫn tới file video gốc chứa frame này.
-- **L**: Số hiệu lớp (ví dụ: 15 tương ứng với L15).
-- **V**: Số hiệu video trong lớp (ví dụ: 1 tương ứng với V001).
+- **video_url**: URL của video.
+- **L**: Số hiệu lớp (ví dụ: "15" tương ứng với L15)
+- **V**: Số hiệu video trong lớp (ví dụ: "001" tương ứng với V001).
 - **frame_id**: ID của frame trong video (bắt đầu từ 0).
 - **fps**: Số frame trên giây của video gốc.
 - **frame_stamp**: frame thuộc giây nào trong video.
-- **detected_objects**: Danh sách các object được phát hiện trong frame, là `list[str]`
-- **objects_count**: Thống kê số lượng từng loại object trong frame (ví dụ: `{"person": 2, "car": 1}`).
-- **detection**: Chuỗi mô tả kết quả nhận diện (xem chi tiết ở `data.json`).
-- **text**: Danh sách các đoạn text phát hiện trong frame (xem chi tiết ở `data.json`).
+- **objects**: Danh sách các object được phát hiện trong frame và số lượng, là `str`
+- **detection**: Chuỗi mô tả kết quả nhận diện, là `str` (xem chi tiết ở `metadata.json`).
+- **text**: Danh sách các đoạn text phát hiện trong frame (xem chi tiết ở `metadata.json`).

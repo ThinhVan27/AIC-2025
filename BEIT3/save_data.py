@@ -1,32 +1,23 @@
 import json
 from pymongo import MongoClient
+import pickle
+# from flask import Flask, request, jsonify
+import time
 
-uri = "mongodb+srv://EEIoT_newbie:ILOVEAIFOREVER@cluster0.xolr95j.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-client = MongoClient(uri)
+class Collection:
+    def __init__(self, uri):
+        self.uri = uri
+        self.client = MongoClient(self.uri, serverSelectionTimeoutMS=60000)
+    
+    def get_db(self, name):
+        return self.client['EEIoT_newbie']
 
-db = client['EEIoT_newbie']
-collection = db['frames']
+    def get_collection(self, name):
+        db = self.get_db('EEIoT_newbie')
+        return db[name]
 
-# collection.delete_many({})  # Clear the collection before inserting new data
+# uri = "mongodb+srv://EEIoT_newbie:ILOVEAIFOREVER@cluster0.xolr95j.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
-with open('data.json', 'r', encoding='utf-8') as f:
-    data = json.load(f)
-
-collection.insert_many(data)
-
-# collection.insert_one({
-#     "path": "L15/V001/frame_000001.jpg",
-#     "video_path": "L15/V001.mp4",
-#     "L": 15,
-#     "V": 1,
-#     "frame": 124,
-#     "fps": 30,
-#     "frame_stamp": 4, # frame//fps
-#     "detected_objects": ['car', 'pedestrian'],
-#     "objects_count": {
-#         "car": 1,
-#         "pedestrian": 2
-#     },
-#     "detection": "e1car e2car d1car d3car c1pedestrian c2pedestrian f1pedestrian a1red a2blue a3green a4yellow a5yellow",
-#     "text": ["Baber shop", "Car wash", "Grocery store"]
-# })
+if __name__ == "__main__":
+    collection = Collection("mongodb+srv://EEIoT_newbie:ILOVEAIFOREVER@cluster0.xolr95j.mongodb.net/").get_collection('frames')
+   

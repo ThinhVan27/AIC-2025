@@ -1,0 +1,34 @@
+0: person
+1: man
+2: woman
+3: human_face
+4: motorcycle
+5: bicycle
+6: car
+7: truck
+8: boat
+9: airplane
+10: cat
+11: dog
+12: cow
+13: bird
+14: umbrella
+15: chair
+16: tv
+17: laptop
+18: house
+19: cell_phone
+10: flower
+21: tree
+22: book
+23: glasses
+24: cake
+25: horse
+26: chair
+27: sports_equipment
+28: sports_ball
+29: bench
+30: couch
+
+
+

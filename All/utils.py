@@ -12,7 +12,7 @@ def get_beit3_tokenizer():
 
 def augment_query(query, num=5, llm=None):
     response = llm.models.generate_content(model="gemini-2.5-flash-lite",
-                                            contents=f"Sinh thêm cho tôi {num} câu bằng tiếng Anh tương tự ngữ nghĩa của \"{query}\" cho mục đích tăng cường dữ liệu huấn luyện mô hình Deep Learning, trả về dạng một chuỗi các câu cách nhau bởi dấu #")
+                                            contents=f"Bạn hãy vào vai là một chuyên gia tạo prompt cho Gemini, sinh thêm cho tôi {num} câu bằng tiếng Anh tương tự ngữ nghĩa của \"{query}\" cho mục đích tăng cường dữ liệu huấn luyện mô hình Deep Learning, trả về dạng một chuỗi các câu cách nhau bởi dấu #, no yapping")
     return response.text.split(" #")
 
 def create_faiss_index(embedding_root, metadata_root, model='beit3', get_metadata=False):
@@ -29,7 +29,10 @@ def create_faiss_index(embedding_root, metadata_root, model='beit3', get_metadat
     
         if get_metadata == True:
             with open(os.path.join(metadata_root, embedding_file.replace('.npy', '.json')), 'r', encoding='utf-8') as f:
-                metadata.extend(json.load(f))
+                md = json.load(f)
+                md = [f['path'] for f in md]
+                
+                metadata.extend(md)
 
     return index, metadata
 

@@ -55,3 +55,36 @@ Ví dụ cho một frame cụ thể, ta có:
 - **objects**: Danh sách các object được phát hiện trong frame và số lượng, là `str`
 - **detection**: Chuỗi mô tả kết quả nhận diện, là `str` (xem chi tiết ở `metadata.json`).
 - **text**: Danh sách các đoạn text phát hiện trong frame (xem chi tiết ở `metadata.json`).
+
+# Cập nhật 03/09/2025
+## Cách tổ chức lại data tải từ phía BTC cung cấp
+
+1. Tải và thiết lập cấu trúc thư mục như sau:
+```
+Root/
+├── keyframes/
+│   ├── L21_V001/
+│   │   ├── 001.jpg
+│   │   ├── 002.jpg
+│   │   └── ...
+│   ├── L21_V002/
+│   │   ├── 001.jpg
+│   │   ├── 002.jpg
+│   │   └── ...
+|   ├── ...
+|      
+├── map-keyframes/
+│   ├── L21_V001.csv
+│   ├── L21_V002.csv
+|   ...
+|
+├── media-info/
+│   ├── L21_V001.json
+│   ├── L21_V002.json
+|   ...
+|
+└── utils.py
+```
+2. Chạy trong termial (hiện đang ở `Root`) câu lệnh `python utils.py`. Sau khi chạy xong
+- `keyframes` sẽ có cấu trúc `keyframes/Lxx/Vxxx/frame_id.jpg`
+- Folder `metadata` tương ứng từng **L**

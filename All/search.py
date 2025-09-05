@@ -212,12 +212,13 @@ if __name__ == "__main__":
 	collection = db['frames']
 
 	# Create models
-	beit3, beit3_tokenizer = create_beit3()
+	beit3, beit3_tokenizer, index1 = None, None, None
+	# beit3, beit3_tokenizer = create_beit3()
 	clip, clip_tokenizer, preprocess = create_clip()
 	llm = create_llm()
 	
-	index1, metadata = create_faiss_index('embedding-info', 'metadata', model='beit3', get_metadata=True)
-	index2, _ = create_faiss_index('embedding-info', 'metadata', model='clip')
+	# index1, metadata = create_faiss_index('embedding-info', 'metadata', model='beit3', get_metadata=True)
+	index2, metadata = create_faiss_index('embedding-info', 'metadata', model='clip', get_metadata=True)
 
 	while True:
 		query1 = input("Enter your query: ")

@@ -144,8 +144,32 @@ def fuzzy_search(collection, detection=None, objects=None, operator="AND", text=
 	
 	results = collection.aggregate(pipeline)
 	
-	return [res['idx'] for res in results]
+	return [max(0, res['idx']-204978) for res in results]
 
+def RRF_ranking(topk1, topk2, topk3, wd=10):
+	map2 = dict(zip(topk2, range(len(topk2))))
+	map3 = dict(zip(topk3, range(len(topk3))))
+	
+	set_idx2 = set(topk2)
+	set_idx3 = set(topk3)
+	
+	reranking = []
+	for i, idx1 in enumerate(topk1):
+		reranking.append(1/(100+i))
+		for offset1 in range(wd):
+			if idx1+offset1 in set_idx2:
+				reranking[-1]+=1/(100.0+map2[idx1+offset1])
+				for offset2 in range(wd):
+					if idx1+offset1+offset2 in set_idx3:
+						reranking[-1]+=1/(100.0+map3[idx1+offset1+offset2])
+	
+	map = list(zip(topk1, reranking))
+	zip_sorted= list(sorted(map, key=lambda x: x[1], reverse=True))
+
+	topk1, _ = zip(*zip_sorted)
+	
+	return topk1
+	
 def search(collection, 
 		   metadata, 
 		   model=None, 
@@ -159,7 +183,8 @@ def search(collection,
 		   detection=None, 
 		   objects=None, 
 		   operator="AND", 
-		   text=None, 
+		   text=None,
+		   temporal_fuzzy=-1,
 		   device='cpu'):
 	
 	topk = None
@@ -167,40 +192,57 @@ def search(collection,
 	frame_paths = []
 	topk_fuzzy = []
 	
-	if query1 is not None:
-		topk_faiss = retrieve(query1, index, k, augment, query2, query3, model, device, llm)
-	
-	topk_fuzzy = fuzzy_search(collection, detection, objects, operator, text, k)
+	if temporal_fuzzy != -1:
+		topk_fuzzy = fuzzy_search(collection, detection, objects, operator, text, k)
+		if topk_fuzzy == []:
+			return [], []
+		if temporal_fuzzy == 1 and query2 != None:
+			topk_faiss2 = retrieve(query2, index, k, augment, None, None, model, device, llm)
+			topk_faiss3 = retrieve(query3, index, k, augment, None, None, model, device, llm) if query3 != None else []
+			topk = RRF_ranking(topk_fuzzy, topk_faiss2, topk_faiss3)
+		elif temporal_fuzzy == 2 and query1 != None:
+			topk_faiss1 = retrieve(query1, index, k, augment, None, None, model, device, llm)
+			topk_faiss3 = retrieve(query3, index, k, augment, None, None, model, device, llm) if query3 != None else []
+			topk = RRF_ranking(topk_faiss1, topk_fuzzy, topk_faiss3)
+		elif temporal_fuzzy == 3 and query2 != None and query1 != None:
+			topk_faiss1 = retrieve(query1, index, k, augment, None, None, model, device, llm)
+			topk_faiss2 = retrieve(query2, index, k, augment, None, None, model, device, llm)
+			topk = RRF_ranking(topk_faiss1, topk_faiss2, topk_fuzzy)
 
-	if topk_fuzzy == []:
-		topk = topk_faiss
-	elif topk_faiss == []:
-		topk = topk_fuzzy
-	else:
-		maping = dict(zip(topk_fuzzy, range(k)))
-		idx_set = set(topk_fuzzy)
+	else: # Only temporal for semantic query
+		if query1 is not None:
+			topk_faiss = retrieve(query1, index, k, augment, query2, query3, model, device, llm)
 		
-		reranking = []
-		for i, idx in enumerate(topk_faiss):
-			if idx in idx_set:
-				reranking.append(1/(100+i)+1/(100+maping[idx]))
-			else:
-				reranking.append(1/(100+i))
-		
-		topk = sorted(zip(topk_faiss, reranking), key=lambda x: x[1], reverse=True)
-		topk = [idx for idx, _ in topk]
+		topk_fuzzy = fuzzy_search(collection, detection, objects, operator, text, k)
+
+		if topk_fuzzy == []:
+			topk = topk_faiss
+		elif topk_faiss == []:
+			topk = topk_fuzzy
+		else:
+			maping = dict(zip(topk_fuzzy, range(k)))
+			idx_set = set(topk_fuzzy)
+			
+			reranking = []
+			for i, idx in enumerate(topk_faiss):
+				if idx in idx_set:
+					reranking.append(1/(100+i)+1/(100+maping[idx]))
+				else:
+					reranking.append(1/(100+i))
+			
+			topk = sorted(zip(topk_faiss, reranking), key=lambda x: x[1], reverse=True)
+			topk = [idx for idx, _ in topk]
 	if topk:
 		frame_paths = [metadata[idx] for idx in topk]
 	else:
 		topk = []
 	return topk, frame_paths
 
-def temporal_search(metadata, frame_idx):
-	neighbor_frames = []
-	lower_bound = max(0, frame_idx-10)
-	upper_bound = min(frame_idx+11, len(metadata))
- 
-	neighbor_frames.extend(metadata[lower_bound:upper_bound])
+def temporal_search(metadata, frame_idx=-1):
+	frame_paths = []
+	for idx in range(min(frame_idx-10, 0), max(frame_idx+10, len(metadata))):
+		frame_paths.append(metadata[idx]['idx'])
+	return frame_paths
 
 if __name__ == "__main__":
 	# device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -213,11 +255,12 @@ if __name__ == "__main__":
 	collection = db['frames']
 
 	# Create models
-	beit3, beit3_tokenizer, index1 = None, None, None
-	# beit3, beit3_tokenizer = create_beit3()
+	beit3, beit3_tokenizer = None, None #create_beit3()
+ 
 	clip, clip_tokenizer, preprocess = create_clip()
 	llm = create_llm()
 	
+	index1 = None
 	# index1, metadata = create_faiss_index('embedding-info', 'metadata', model='beit3', get_metadata=True)
 	index2, metadata = create_faiss_index('embedding-info', 'metadata', model='clip', get_metadata=True)
 
@@ -263,6 +306,9 @@ if __name__ == "__main__":
 			llm_ = llm
 		else:
 			llm_ = None
+   
+		temporal_fuzzy = input("Enter temporal fuzzy: ")
+		temporal_fuzzy = int(temporal_fuzzy) if temporal_fuzzy else -1
 		
 		topk, frame_paths = search(collection=collection,
 									metadata=metadata, 
@@ -278,6 +324,7 @@ if __name__ == "__main__":
 									objects=objects, # "car1 car2 person1 person2"
 									operator=operator, # [0, 1] = ["AND", "OR"]
 									text=text,
+									temporal_fuzzy=temporal_fuzzy,
 									device=device)  # text ""
 	
 		# for idx in topk:

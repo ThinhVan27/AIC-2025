@@ -195,11 +195,12 @@ def search(collection,
 		topk = []
 	return topk, frame_paths
 
-def temporal_search(metadata, frame_idx=-1):
-	frame_paths = []
-	for idx in range(min(frame_idx-10, 0), max(frame_idx+10, len(metadata))):
-		frame_paths.append(metadata[idx]['idx'])
-	return frame_paths
+def temporal_search(metadata, frame_idx):
+	neighbor_frames = []
+	lower_bound = max(0, frame_idx-10)
+	upper_bound = min(frame_idx+11, len(metadata))
+ 
+	neighbor_frames.extend(metadata[lower_bound:upper_bound])
 
 if __name__ == "__main__":
 	# device = 'cuda' if torch.cuda.is_available() else 'cpu'

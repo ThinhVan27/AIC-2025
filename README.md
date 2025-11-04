@@ -7,3 +7,7 @@
 - `checkpoints` cho BEIT3, đặt trong `beit3/`
 - `embedding-info` nằm ngang hàng với `search.py`
 - `keyframes`: `batch1` và `batch2`
+
+# Những thứ cần tải cho hệ thống
+- Metadata/ (trong `All/metadata`)
+- beit3_checkpoints, keyframes batch1&2, embedding-info (tải tại link drive: https://drive.google.com/drive/folders/1lLyvVkyQcw4orZvFsQk0bLmtEFiNpBCF?usp=drive_link)

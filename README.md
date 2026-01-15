@@ -180,7 +180,7 @@ AIC-2025/
 ## Results
 
 
-Our system demonstrates the effectiveness of multimodal approaches in understanding and retrieving information from complex lifelog video data at **Pre-Final Round** and impressivelly participate in the **Final Round**.
+Our system demonstrates the effectiveness of multimodal approaches in understanding and retrieving information from complex lifelog video data at **Pre-Final Round** and impressivelly participate in the **Final Round**
 
 ---
 

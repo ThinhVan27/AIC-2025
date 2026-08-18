@@ -216,12 +216,15 @@ __marimo__/
 .streamlit/secrets.toml
 
 # images
-.png
-.jpg
+*.png
+*.jpg
 
 # numpy
-.npy
+*.npy
 
 #checkpoint
-.pth 
-.pt 
+*.pth 
+*.pt 
+
+qdrant_storage/
+aic2026/search_engine/metadata/*.json

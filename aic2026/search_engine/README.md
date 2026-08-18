@@ -1,16 +1,18 @@
+Vào `README.md` trong `model/` để kiểm tra và cài đặt checkpoint trước. 
+
 Cách chạy:
 
 ```powershell
 cd aic2026\search_engine
 pip install -r requirements.txt
 docker compose up -d
-python search.py build --model all --recreate
 ```
 
-Có thể tự chạy ở máy để build collection (phải tại embedding .npy về), hoặc tải ở [đây]() và đặt ở `search_engine/`
+Có thể tự chạy ở máy để build collection bằng lệnh ở dưới (phải tại embedding .npy và metadata về)
 ```powershell
 python search.py build --model all --recreate
 ```
+hoặc tải ở [đây](https://drive.google.com/file/d/1mZGQNQ0bWFDxIw--3Ye_WgRan_TSOEt2/view?usp=sharing) và đặt ở `search_engine/`
 
 Search text/image:
 
